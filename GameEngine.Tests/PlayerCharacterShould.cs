@@ -1,54 +1,66 @@
 using System;
 using Xunit;
+using Xunit.Abstractions; 
+
+
+
 
 namespace GameEngine.Tests
 {
-    public class PlayerCharacterShould
+    public class PlayerCharacterShould : IDisposable
     {
-        [Fact]
-        public void BeInexperiencedWhenNew()
+        private readonly PlayerCharacter _sut;
+        private readonly ITestOutputHelper _output; 
+
+        public PlayerCharacterShould(ITestOutputHelper output)
         {
-            PlayerCharacter sut = new PlayerCharacter();
+            _output = output; 
+            _output.WriteLine("Creating New Character");
+            _sut = new PlayerCharacter(); 
+        }
+        public void Dispose()
+        {
+            _output.WriteLine($"Disposing Player Character {_sut.FullName}");
+
         }
 
         [Fact]
+        public void BeInexperiencedWhenNew()
+        {
+            Assert.True(_sut.IsNoob);
+            
+        }
+
+        [Fact]  
+        [Trait("Category","Enemy")]
         public void HaveALongBow()
         {
-            PlayerCharacter sut = new PlayerCharacter();
-
-            Assert.Contains("Long Bow", sut.Weapons);
-        } 
-
+            Assert.Contains("Long Bow", _sut.Weapons);
+        }
+        
         [Fact]
         public void DoesNotHaveAMiddleBow()
         {
-            PlayerCharacter sut = new PlayerCharacter();
-
-            Assert.DoesNotContain("Middle Bow", sut.Weapons);
-        } 
+            Assert.DoesNotContain("Middle Bow", _sut.Weapons);
+        }
 
         [Fact]
         public void HaveAtLeastOneKindOfSword()
         {
-
-            PlayerCharacter sut = new PlayerCharacter();
-
-            Assert.Contains(sut.Weapons, weapon => weapon.Contains("Sword"));
-
+            Assert.Contains(_sut.Weapons, weapon => weapon.Contains("Sword"));
         }
 
-        [Fact] 
+        [Fact]
 
         public void HaveNoEmptyDefaultWeapons()
         {
-            PlayerCharacter sut = new PlayerCharacter();
+            Assert.All(_sut.Weapons, weapon => Assert.False(string.IsNullOrEmpty(weapon)));
+        }
 
-            Assert.All(sut.Weapons, weapon => Assert.False(string.IsNullOrEmpty(weapon)));
-        } 
-
+        [Fact]
         public void HaveAllExpectedWeapons()
         {
-            PlayerCharacter sut = new PlayerCharacter();
+            
 
             var ExpectedWeapons = new[]
             {
@@ -57,7 +69,41 @@ namespace GameEngine.Tests
                 "Short Sword"
             };
 
-            Assert.Equal(sut.Weapons, ExpectedWeapons); 
+            Assert.Equal(_sut.Weapons, ExpectedWeapons);
         }
+
+        [Fact]
+        public void NotAllowNullName()
+        {
+            EnemyFactory sut = new EnemyFactory();
+
+            Assert.Throws<ArgumentNullException>("Jon", () => sut.Create(null));
+        }
+        [Fact]
+        public void IsThathBossName()
+        {
+            EnemyFactory sut = new EnemyFactory();
+
+            EnemyCreationException ex = Assert.Throws<EnemyCreationException>(() => sut.Create("Zombie", true));
+
+            Assert.Equal("Zombie", ex.RequestedEnemyName); 
+
+
+        }
+
+        [Fact] 
+        public void RaiseSleptEvent()
+        {
+            Assert.Raises<EventArgs>(
+                handler => _sut.PlayerSlept += handler,
+                handler => _sut.PlayerSlept -= handler,
+                () => _sut.Sleep()); 
+        }
+
+        
+
+
+
+        
     }
 }

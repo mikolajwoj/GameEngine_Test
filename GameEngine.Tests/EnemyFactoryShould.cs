@@ -19,8 +19,8 @@ namespace GameEngine.Tests
 
 
         }
-
-        public void CreateNormalnEnemyByDefault()
+        [Fact]
+        public void CreateNormalnEnemyByDefaultver2()
         {
             EnemyFactory sut = new EnemyFactory();
 
@@ -50,6 +50,17 @@ namespace GameEngine.Tests
 
         } 
 
+        [Fact] 
+        public void RaisePropertyChangedEvent()
+        {
+            PlayerCharacter sut = new PlayerCharacter();
+
+            Assert.PropertyChanged(sut, "Health", () => sut.TakeDamage(10)); 
+        } 
+
+
+        
+        
 
     }
 }

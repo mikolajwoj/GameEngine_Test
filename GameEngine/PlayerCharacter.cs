@@ -31,7 +31,7 @@ namespace GameEngine
         {
             FirstName = GenerateRandomFirstName();
 
-            IsNoob = true;
+            IsNoob = true; 
 
             CreateStartingWeapons();
         }
